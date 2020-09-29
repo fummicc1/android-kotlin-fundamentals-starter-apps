@@ -54,16 +54,15 @@ class ScoreFragment : Fragment() {
                 container,
                 false
         )
-        viewModel.score.observe(viewLifecycleOwner, Observer {
-            binding.scoreText.text = it.toString()
-        })
+        binding.scoreViewModel = viewModel
+        // necessary to observe LiveData updates.
+        binding.lifecycleOwner = viewLifecycleOwner
         viewModel.eventPlayAgain.observe(viewLifecycleOwner, Observer {
             if (it) {
                 findNavController().navigate(ScoreFragmentDirections.actionRestart())
                 viewModel.onPlayAgainComplete()
             }
         })
-        binding.playAgainButton.setOnClickListener { viewModel.onPlayAgain() }
         return binding.root
     }
 }

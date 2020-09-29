@@ -52,39 +52,15 @@ class GameFragment : Fragment() {
                 container,
                 false
         )
-        binding.apply {
-            correctButton.setOnClickListener { onCorrect() }
-            skipButton.setOnClickListener { onSkip() }
-            endGameButton.setOnClickListener { onEndGame() }
-
-            viewModel.score.observe(viewLifecycleOwner, Observer {
-                scoreText.text = it.toString()
-            })
-            viewModel.word.observe(viewLifecycleOwner, Observer {
-                wordText.text = it
-            })
-            viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer {
-                if (it) {
-                    gameFinished()
-                }
-            })
-        }
+        binding.gameViewModel = viewModel
+        // necessary to observe LiveData updates.
+        binding.lifecycleOwner = viewLifecycleOwner
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                gameFinished()
+            }
+        })
         return binding.root
-
-    }
-
-    /** Methods for buttons presses **/
-
-    private fun onSkip() {
-        viewModel.onSkip()
-    }
-
-    private fun onCorrect() {
-        viewModel.onCorrect()
-    }
-
-    private fun onEndGame() {
-        gameFinished()
     }
 
     // finish game and move to score screen.
