@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.android.guesstheword.R
@@ -55,9 +56,19 @@ class GameFragment : Fragment() {
             correctButton.setOnClickListener { onCorrect() }
             skipButton.setOnClickListener { onSkip() }
             endGameButton.setOnClickListener { onEndGame() }
+
+            viewModel.score.observe(viewLifecycleOwner, Observer {
+                scoreText.text = it.toString()
+            })
+            viewModel.word.observe(viewLifecycleOwner, Observer {
+                wordText.text = it
+            })
+            viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer {
+                if (it) {
+                    gameFinished()
+                }
+            })
         }
-        updateScoreText()
-        updateWordText()
         return binding.root
 
     }
@@ -66,14 +77,10 @@ class GameFragment : Fragment() {
 
     private fun onSkip() {
         viewModel.onSkip()
-        updateWordText()
-        updateScoreText()
     }
 
     private fun onCorrect() {
         viewModel.onCorrect()
-        updateWordText()
-        updateScoreText()
     }
 
     private fun onEndGame() {
@@ -84,17 +91,8 @@ class GameFragment : Fragment() {
     private fun gameFinished() {
         Toast.makeText(context, "Game has just finished.", Toast.LENGTH_LONG).show()
         val action = GameFragmentDirections.actionGameToScore()
-        action.score = viewModel.score
+        action.score = viewModel.score.value ?: 0
         findNavController().navigate(action)
-    }
-
-    /** Methods for updating the UI **/
-
-    private fun updateWordText() {
-        binding.wordText.text = viewModel.word
-    }
-
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.toString()
+        viewModel.onGameFinishComplete()
     }
 }
